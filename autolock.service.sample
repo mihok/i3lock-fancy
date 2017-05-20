@@ -1,0 +1,12 @@
+[Unit]
+Description=Lock the screen automatically after a timeout
+
+[Service]
+Type=simple
+User=mihok
+Environment=DISPLAY=:0
+ExecStart=/usr/bin/xautolock -time 1 -locker "/usr/local/bin/lock -pf Meslo-LG-S-DZ-Regular -t '' -- scrot -z" -detectsleep
+
+[Install]
+WantedBy=graphical.target
+
