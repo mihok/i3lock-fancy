@@ -67,7 +67,6 @@ case "${LANG:-}" in
 esac
 
 while true ; do
-    echo "Testing $1\n"
     case "$1" in
         -h|--help)
             printf "Usage: %s [options]\n\n%s\n\n" "${0##*/}" "$options"; exit 1 ;;
