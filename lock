@@ -11,6 +11,7 @@ hue=(-level "0%,100%,0.6")
 effect=(-filter Gaussian -resize 20% -define "filter:sigma=1.5" -resize 500.5%)
 # default system sans-serif font
 font="$(convert -list font | awk "{ a[NR] = \$2 } /family: $(fc-match sans -f "%{family}\n")/ { print a[NR-1]; exit }")"
+fontsize="9"
 image="$(mktemp).png"
 shot=(import -window root)
 desktop=""
@@ -28,6 +29,8 @@ options="Options:
 
     -f <fontname>, --font <fontname>  Set a custom font.
 
+    -s <fontsize>, --font-size <fontsize>  Font size.
+
     -t <text>, --text <text> Set a custom text prompt.
 
     -l, --listfonts  Display a list of possible fonts for use with -f/--font.
@@ -44,7 +47,7 @@ options="Options:
 # move pipefail down as for some reason "convert -list font" returns 1
 set -o pipefail
 trap 'rm -f "$image"' EXIT
-temp="$(getopt -o :hdnpglt:f: -l desktop,help,listfonts,nofork,pixelate,greyscale,text:,font: --name "$0" -- "$@")"
+temp="$(getopt -o :hdnps:glt:f: -l desktop,help,listfonts,nofork,pixelate,greyscale,font-size:,text:,font: --name "$0" -- "$@")"
 eval set -- "$temp"
 
 # l10n support
@@ -64,6 +67,7 @@ case "${LANG:-}" in
 esac
 
 while true ; do
+    echo "Testing $1\n"
     case "$1" in
         -h|--help)
             printf "Usage: %s [options]\n\n%s\n\n" "${0##*/}" "$options"; exit 1 ;;
@@ -75,6 +79,7 @@ while true ; do
                 "") shift 2 ;;
                 *) font=$2 ; shift 2 ;;
             esac ;;
+        -s|--font-size) fontsize=$2 ; shift 2 ;;
         -t|--text) text=$2 ; shift 2 ;;
         -l|--listfonts)
 	    convert -list font | awk -F: '/Font: / { print $2 }' | sort -du | command -- ${PAGER:-less}
@@ -112,7 +117,7 @@ else #black
         "--ringwrongcolor=ffffff00" "--insidewrongcolor=ffffff00")
 fi
 
-convert "$image" "${hue[@]}" "${effect[@]}" -font "$font" -pointsize 9 -fill "$bw" -gravity center \
+convert "$image" "${hue[@]}" "${effect[@]}" -font "$font" -pointsize $fontsize -fill "$bw" -gravity center \
     -annotate +0+160 "$text" "$icon" -gravity center -composite "$image"
 
 # If invoked with -d/--desktop, we'll attempt to minimize all windows (ie. show
